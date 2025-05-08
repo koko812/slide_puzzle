@@ -4,6 +4,8 @@ const size = 300 / width
 
 const board = []
 const cellElementsList = []
+let ex, ey
+
 for (let y = 0; y < height; y++) {
     // ここをいつも脳死で描いてるので，一回エラー出させたい
     // 各行ごとに初期化が必要だということをきちんと検証したいということ
@@ -25,7 +27,7 @@ const init = () => {
     // 初期盤面の作成
     // 気数回の入れ替えだと解けなくなるらしい (これも群論かな?)
     // 偶数回だと隣り合った置換じゃなくても大丈夫なのか？という感じはある
-    for (let i = 0; i < 1; i++) {
+    for (let i = 0; i < 100; i++) {
         let from, to
         do {
             // random は 1未満　だということを覚えておけ
@@ -33,15 +35,25 @@ const init = () => {
             to = Math.trunc(Math.random() * width * height)
             console.log(from, to);
         } while (from === to)
-        const fromX = from % 4
-        const fromY = Math.trunc(from / 4)
-        const toX = to % 4
-        // toY の文末にセミコロンを入れないと，toY が定義されていないのにアクセスしているよ，というエラーが出る（謎）
-        const toY = Math.trunc(to / 4);
-        //console.log(fromX, fromY, toX, toY);
-        [board[fromY][fromX], board[toY][toX]] =
-            [board[toY][toX], board[fromY][fromX]]
+        
+    const fromX = from % 4
+    const fromY = Math.trunc(from / 4)
+    const toX = to % 4
+    // toY の文末にセミコロンを入れないと，toY が定義されていないのにアクセスしているよ，というエラーが出る（謎）
+    const toY = Math.trunc(to / 4);
+    //console.log(fromX, fromY, toX, toY);
+    [board[fromY][fromX], board[toY][toX]] =
+        [board[toY][toX], board[fromY][fromX]]
+        
     }
+    /* for debug
+    [board[3][3], board[2][3]] =
+        [board[2][3], board[3][3]];
+    [board[2][3], board[3][2]] =
+        [board[3][2], board[2][3]];
+    [board[3][3], board[2][3]] =
+        [board[2][3], board[3][3]];
+        */
     // 今回は container を作らないらしい？？
     // まあ一回それでやってみるか
     //const contanier = document.createElement('div')
@@ -64,6 +76,10 @@ const init = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
             })
+            if (!board[y][x]) {
+                ex = x
+                ey = y
+            }
             cellElementsList[y][x] = div
             //div.textContent = board[y][x]
             div.onpointerdown = (e) => {
@@ -75,7 +91,7 @@ const init = () => {
 }
 
 // ここの実装が超スマート
-let ex = 3, ey = 3
+// この初期化，空白ますが最初の初期化で動いてたら死ぬのでダメ
 const ondown = (x, y) => {
     console.log(ex, ey, x, y);
     if (Math.abs(ex - x) + Math.abs(ey - y) === 1) {
@@ -95,12 +111,31 @@ const ondown = (x, y) => {
 // onpointerdown などを入れれば良いということを覚えておこう
 
 const showBoard = () => {
+    let clear = true
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             cell = cellElementsList[y][x]
             //console.log(cell);
             cell.textContent = board[y][x] || ""
+
+            if (y === 3 && x === 3) {
+                continue
+            }
+            if (board[y][x] != y * 4 + x + 1) {
+                clear = false
+            }
         }
+    }
+    if (clear) {
+        ex = 999
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                cell = cellElementsList[y][x]
+                cell.textContent = board[y][x] || ""
+                cell.style.backgroundColor = '#4a4'
+            }
+        }
+
     }
 }
 
