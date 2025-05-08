@@ -20,6 +20,26 @@ for (let y = 0; y < height; y++) {
 }
 
 const init = () => {
+    // 初期盤面の作成
+    // 気数回の入れ替えだと解けなくなるらしい
+    // 偶数回だと隣り合った置換じゃなくても大丈夫なのか？という感じはある
+    for (let i = 0; i < 100; i++) {
+        let from, to
+        do {
+            // random は 1未満　だということを覚えておけ
+            from = Math.trunc(Math.random() * width * height) 
+            to = Math.trunc(Math.random() * width * height) 
+            console.log(from, to);
+        } while (from === to)
+        const fromX = from % 4
+        const fromY = Math.trunc(from / 4)
+        const toX = to % 4
+        // toY の文末にセミコロンを入れないと，toY が定義されていないのにアクセスしているよ，というエラーが出る（謎）
+        const toY = Math.trunc(to / 4);
+        //console.log(fromX, fromY, toX, toY);
+        [board[fromY][fromX], board[toY][toX]] =
+            [board[toY][toX], board[fromY][fromX]]
+    }
     // 今回は container を作らないらしい？？
     // まあ一回それでやってみるか
     //const contanier = document.createElement('div')
@@ -35,7 +55,9 @@ const init = () => {
                 left: `${size * x}px`,
                 backgroundColor: `#a66`,
                 border: `solid #844 2px`,
-                fontSize: `${size*0.5}px`,
+                fontSize: `${size * 0.6}px`,
+                //fontWeight: 'bold',
+                fontFamily: 'Times New Roman',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'center',
